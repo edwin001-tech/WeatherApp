@@ -39,9 +39,8 @@ public class MainActivity extends AppCompatActivity {
         try {
             DownloadTask task = new DownloadTask();
 
-            //covert spaces into %20
+            //convert spaces into %20
             String encodedCityName = URLEncoder.encode(editText.getText().toString(), "UTF-8");
-
             task.execute("https://openweathermap.org/data/2.5/weather?q=" + encodedCityName + "&appid=439d4b804bc8187953eb36d2a8c26a02");
 
             //hide soft-keyboard
