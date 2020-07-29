@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,36 +23,44 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 public class MainActivity extends AppCompatActivity {
-    EditText editText;
-    TextView resultTextView;
+    private EditText editText;
+    private TextView resultTextView;
+    private Button weatherResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         editText = findViewById(R.id.editText);
-        resultTextView = findViewById(R.id.resultTextView);
+        resultTextView = findViewById(R.id.weatherText);
+        weatherResult = findViewById(R.id.button);
 
+        weatherResult.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    DownloadTask task = new DownloadTask();
+
+                    //convert spaces into %20
+                    String encodedCityName = URLEncoder.encode(editText.getText().toString(), "UTF-8");
+                    task.execute("https://openweathermap.org/data/2.5/weather?q=" + encodedCityName + "&appid=439d4b804bc8187953eb36d2a8c26a02");
+
+                    //hide soft-keyboard
+                    InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (mgr != null) {
+                        mgr.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "Could not find Weather :(", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+            }
+        };
+
+    });
     }
 
-    public void getWeather(View view) {
-        try {
-            DownloadTask task = new DownloadTask();
-
-            //convert spaces into %20
-            String encodedCityName = URLEncoder.encode(editText.getText().toString(), "UTF-8");
-            task.execute("https://openweathermap.org/data/2.5/weather?q=" + encodedCityName + "&appid=439d4b804bc8187953eb36d2a8c26a02");
-
-            //hide soft-keyboard
-            InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            mgr.hideSoftInputFromWindow(editText.getWindowToken(), 0);
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Could not find Weather :(", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-
-        }
-    }
 
         public class DownloadTask extends AsyncTask<String, Void, String> {
 
@@ -129,5 +138,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 
 
